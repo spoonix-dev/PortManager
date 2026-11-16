@@ -1,0 +1,19 @@
+# Build output
+build/
+dist/
+*.spec
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
