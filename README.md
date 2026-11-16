@@ -12,7 +12,7 @@
 
 [**⬇ Download PortManager.exe**](https://github.com/spoonix-dev/PortManager/releases) ·
 [Report a bug](https://github.com/spoonix-dev/PortManager/issues) ·
-[Arabic summary](#-ملخص-بالعربية)
+
 
 </div>
 
