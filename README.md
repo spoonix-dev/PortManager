@@ -17,7 +17,7 @@
 </div>
 
 ---
-<img width="256" height="256" alt="logo_hd" src="https://github.com/user-attachments/assets/60b7ae42-3971-48f0-8080-327cd450a3f8" />
+
 
 
 ## Why PortManager?
