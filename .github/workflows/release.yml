@@ -5,6 +5,10 @@ on:
     tags:
       - "v*"
 
+env:
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: "utf-8"
+
 permissions:
   contents: write
 
@@ -26,6 +30,7 @@ jobs:
         shell: python
         run: |
           import json, pathlib, re, sys
+          sys.stdout.reconfigure(encoding="utf-8")
           files = sorted(pathlib.Path("locales").glob("*.json"))
           if not any(f.name == "en.json" for f in files):
               sys.exit("locales/en.json is required (it is the fallback language)")
@@ -70,9 +75,9 @@ jobs:
             dist/PortManager-locales.zip
           generate_release_notes: true
           body: |
-            **PortManager 2.4** — iOS-styled, animated, multilingual Task Manager & Network Port Monitor for Windows.
-            Open source by Mustafa Al-Aqrawi ([@spoonix-dev](https://github.com/spoonix-dev)) · MIT License.
+            PortManager 2.4 — iOS-styled, animated, multilingual Task Manager & Network Port Monitor for Windows.
+            Open source by Mustafa Al-Aqrawi (@spoonix-dev (https://github.com/spoonix-dev)) · MIT License.
 
-            Download `PortManager.exe` below and run it. No installer, no dependencies.
-            English and Arabic are built in; `PortManager-locales.zip` holds the language files — drop any extra
-            `.json` file into a `locales` folder next to the exe to add a language without rebuilding.
+            Download PortManager.exe below and run it. No installer, no dependencies.
+            English and Arabic are built in; PortManager-locales.zip holds the language files — drop any extra
+            .json file into a locales folder next to the exe to add a language without rebuilding.
