@@ -22,15 +22,44 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Build (build.bat)
+      - name: Validate locales
+        shell: python
+        run: |
+          import json, pathlib, re, sys
+          files = sorted(pathlib.Path("locales").glob("*.json"))
+          if not any(f.name == "en.json" for f in files):
+              sys.exit("locales/en.json is required (it is the fallback language)")
+          base = {k for k in json.loads(pathlib.Path("locales/en.json").read_text("utf-8")) if k != "_meta"}
+          failed = False
+          for f in files:
+              data = json.loads(f.read_text("utf-8"))
+              meta = data.get("_meta")
+              if not isinstance(meta, dict) or not all(k in meta for k in ("code", "name", "native_name", "rtl")):
+                  print(f"::error file={f}::_meta needs code, name, native_name and rtl")
+                  failed = True
+                  continue
+              if not re.fullmatch(r"[a-z]{2,3}(-[a-z0-9]{2,8})?", str(meta["code"])):
+                  print(f"::error file={f}::invalid language code {meta['code']!r}")
+                  failed = True
+              missing = sorted(base - set(data))
+              extra = sorted(set(data) - base - {"_meta"})
+              if missing:
+                  print(f"::warning file={f}::{len(missing)} keys fall back to English: {', '.join(missing[:8])}...")
+              if extra:
+                  print(f"::warning file={f}::unknown keys: {', '.join(extra[:8])}")
+              print(f"{f.name}: {meta['native_name']} (rtl={meta['rtl']}), {len(data) - 1} keys")
+          sys.exit(1 if failed else 0)
+
+      - name: Build (build.bat bundles locales/)
         shell: cmd
         run: call build.bat
 
-      - name: Checksum
+      - name: Package assets
         shell: pwsh
         run: |
           $hash = (Get-FileHash dist\PortManager.exe -Algorithm SHA256).Hash.ToLower()
           "$hash  PortManager.exe" | Out-File -Encoding ascii dist\PortManager.exe.sha256
+          Compress-Archive -Path locales -DestinationPath dist\PortManager-locales.zip -Force
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
@@ -38,9 +67,12 @@ jobs:
           files: |
             dist/PortManager.exe
             dist/PortManager.exe.sha256
+            dist/PortManager-locales.zip
           generate_release_notes: true
           body: |
-            **PortManager** — macOS-inspired Task Manager & Network Port Monitor for Windows.
+            **PortManager 2.4** — iOS-styled, animated, multilingual Task Manager & Network Port Monitor for Windows.
             Open source by Mustafa Al-Aqrawi ([@spoonix-dev](https://github.com/spoonix-dev)) · MIT License.
 
             Download `PortManager.exe` below and run it. No installer, no dependencies.
+            English and Arabic are built in; `PortManager-locales.zip` holds the language files — drop any extra
+            `.json` file into a `locales` folder next to the exe to add a language without rebuilding.
